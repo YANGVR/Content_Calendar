@@ -4,6 +4,18 @@
 
 export type SeasonPart = { number: number; start: number; end: number };
 
+// Seasons for titles whose TMDB "Seasons" episode group is missing or does
+// not cover every episode. Keyed by TMDB series id; ranges are TMDB's own
+// episode numbers.
+export const MANUAL_PARTS: Record<number, SeasonPart[]> = {
+  // 전생 귀족, 감정 스킬로 성공하다: 12 episodes per season.
+  237150: [
+    { number: 1, start: 1, end: 12 },
+    { number: 2, start: 13, end: 24 },
+    { number: 3, start: 25, end: 36 },
+  ],
+};
+
 type GroupEpisode = { season_number: number; episode_number: number };
 type Group = { order: number; episodes: GroupEpisode[] };
 

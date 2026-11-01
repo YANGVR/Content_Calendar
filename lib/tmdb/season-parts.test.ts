@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { partEpisodeLabel, partsFromGroup } from "./season-parts";
+import { MANUAL_PARTS, partEpisodeLabel, partsFromGroup } from "./season-parts";
 
 const ep = (n: number, season = 1) => ({ season_number: season, episode_number: n });
 const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => ep(a + i));
@@ -41,5 +41,21 @@ describe("partEpisodeLabel", () => {
     ];
     expect(partEpisodeLabel(parts, 28)).toBe("2기 3화");
     expect(partEpisodeLabel(parts, 1)).toBe("1기 1화");
+  });
+});
+
+describe("MANUAL_PARTS", () => {
+  it("직접 적은 기수는 1화부터 빠짐없이 이어진다", () => {
+    for (const parts of Object.values(MANUAL_PARTS)) {
+      let next = 1;
+      for (const part of parts) {
+        expect(part.start).toBe(next);
+        next = part.end + 1;
+      }
+    }
+  });
+
+  it("전생 귀족 25화는 3기 1화로 표시한다", () => {
+    expect(partEpisodeLabel(MANUAL_PARTS[237150], 25)).toBe("3기 1화");
   });
 });

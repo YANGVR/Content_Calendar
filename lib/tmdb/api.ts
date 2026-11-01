@@ -7,7 +7,7 @@ import {
   type TmdbType,
 } from "./classify";
 import { editionFor } from "./editions";
-import { partsFromGroup } from "./season-parts";
+import { MANUAL_PARTS, partsFromGroup } from "./season-parts";
 
 // Server-only: TMDB_API_KEY has no NEXT_PUBLIC_ prefix, so it never reaches
 // the browser. Accepts either a v3 API key or a v4 read access token.
@@ -216,6 +216,7 @@ const PRODUCTION_GROUP = 6;
 // Display-only seasons for a series TMDB lists as a single long season, from
 // the first "Seasons" production episode group that cleanly splits it.
 export async function getSeasonParts(seriesId: number, total: number) {
+  if (MANUAL_PARTS[seriesId]) return MANUAL_PARTS[seriesId];
   const list = await tmdbFetch<{ results?: RawEpisodeGroupSummary[] }>(
     `/tv/${seriesId}/episode_groups`,
   );
