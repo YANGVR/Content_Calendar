@@ -95,7 +95,7 @@ export default async function RecordsPage({ searchParams }: PageProps<"/records"
           </EmptyContent>
         </Empty>
       ) : (
-        <Tabs defaultValue="list">
+        <Tabs defaultValue="calendar">
           <TabsList>
             <TabsTrigger value="calendar">달력</TabsTrigger>
             <TabsTrigger value="list">목록</TabsTrigger>
