@@ -33,3 +33,13 @@ export async function updateNickname(
   revalidatePath("/settings");
   return { saved: true };
 }
+
+// Public: accepted friends can see your records. Private: nobody can.
+export async function setVisibility(isPublic: boolean) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims.sub;
+  if (!userId) return;
+  await supabase.from("profiles").update({ is_public: isPublic }).eq("id", userId);
+  revalidatePath("/settings");
+}

@@ -17,11 +17,13 @@ export function RecordsCalendar({
   imageUrls,
   episodeTexts,
   today,
+  linkable = true,
 }: {
   records: WatchRecord[];
   imageUrls: Record<string, string>;
   episodeTexts: Record<string, string>;
   today: string;
+  linkable?: boolean;
 }) {
   const groups = useMemo(() => groupByDate(records), [records]);
   const byDate = useMemo(
@@ -58,6 +60,7 @@ export function RecordsCalendar({
                 record={record}
                 imageUrl={contentImageSrc(record.content, imageUrls)}
                 episodeText={episodeTexts[record.id]}
+                linkable={linkable}
               />
             ))}
           </ul>

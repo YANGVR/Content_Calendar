@@ -22,6 +22,9 @@ export default function MainLayout({ children }: LayoutProps<"/">) {
             <Link href="/contents" className="hover:text-foreground">
               내 콘텐츠
             </Link>
+            <Link href="/friends" className="hover:text-foreground">
+              친구
+            </Link>
             <Link href="/settings" className="hover:text-foreground">
               설정
             </Link>

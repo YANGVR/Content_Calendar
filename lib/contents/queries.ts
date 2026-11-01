@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/supabase/user";
 
 import type { WatchedPrecision } from "@/lib/records/dates";
 import type { TmdbType } from "@/lib/tmdb/classify";
@@ -39,13 +40,15 @@ export type ContentWithRecords = Content & {
   }[];
 };
 
-// Hand-added contents plus TMDB contents the user has recorded, with the
-// episodes recorded for each (for progress).
-export async function listMyContents() {
+// Hand-added contents plus TMDB contents the owner has recorded, with the
+// episodes recorded for each (for progress). Defaults to the signed-in user;
+// a friend's id works when row-level security lets the caller read it.
+export async function listMyContents(ownerId?: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("contents")
     .select(`${CONTENT_COLUMNS}, watch_records(season, episode, watched_on, watched_precision)`)
+    .eq("owner_id", ownerId ?? (await currentUserId()))
     .order("created_at", { ascending: false })
     .returns<ContentWithRecords[]>();
   if (error) throw error;
@@ -60,6 +63,7 @@ export async function getContent(id: string) {
     .from("contents")
     .select(CONTENT_COLUMNS)
     .eq("id", id)
+    .eq("owner_id", await currentUserId())
     .maybeSingle<Content>();
   if (error) throw error;
   return data;
@@ -75,6 +79,7 @@ export async function searchMyCustomContents(query: string) {
     .from("contents")
     .select(CONTENT_COLUMNS)
     .eq("source", "custom")
+    .eq("owner_id", await currentUserId())
     .ilike("title", `%${term}%`)
     .order("created_at", { ascending: false })
     .returns<Content[]>();

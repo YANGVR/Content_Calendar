@@ -31,10 +31,11 @@ One review pass after this task. 범위: 작업 01–05의 접근 권한 전체.
 
 ## Status
 
-pending
+completed
 
 ## Execution
 
-- Verification: —
+- Verification: 2026-11-01 실행 중인 앱에서 세 계정(A=cctest_alpha, B=cctest_beta, C=cctest_gamma)으로 확인. 없는 아이디·자기 자신·중복 요청은 안내와 함께 거부됐다. B→A 요청을 A가 수락하자 양쪽 친구 목록에 나타났고, A는 /friends/cctest_beta에서 B의 기록·달력·콘텐츠를 링크 없이 열람했다. A의 내 콘텐츠·기록·검색에는 B의 데이터가 섞이지 않았고, A가 B의 콘텐츠 주소를 직접 열면 404였다. B가 비공개로 바꾸자 A에게 "비공개 계정이에요"만 보였다(기록 0건). 친구가 아닌 C는 B의 페이지가 404였다. C의 요청 취소, A의 C 요청 거절, A의 친구 삭제 후 양쪽 목록에서 사라지고 B 페이지 404가 확인됐다. B는 다시 공개로 되돌렸다. typecheck·lint·단위 테스트 33개 통과. 데이터 API를 직접 호출하는 차단 확인은 브라우저에 publishable key가 없어 하지 않았다.
+- Review: `code-review low` 1회(권한 범위), 지적 없음.
 - Blocker: —
 - Revision: —

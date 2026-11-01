@@ -13,6 +13,7 @@ export function RecordItem({
   imageUrl,
   dateLabel,
   episodeText,
+  linkable = true,
 }: {
   record: WatchRecord;
   imageUrl?: string;
@@ -20,13 +21,11 @@ export function RecordItem({
   dateLabel?: string;
   // Overrides the episode label, e.g. "2기 3화" for a split single-season anime.
   episodeText?: string;
+  // False on a friend's page: their contents are not yours to open.
+  linkable?: boolean;
 }) {
-  return (
-    <li>
-      <Link
-        href={`/contents/${record.content_id}`}
-        className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
-      >
+  const body = (
+    <>
         <Thumbnail src={imageUrl} alt={record.content.title} />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="truncate font-medium">{record.content.title}</span>
@@ -41,7 +40,20 @@ export function RecordItem({
             {dateLabel && <span>· {dateLabel}</span>}
           </div>
         </div>
-      </Link>
+    </>
+  );
+  return (
+    <li>
+      {linkable ? (
+        <Link
+          href={`/contents/${record.content_id}`}
+          className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className="flex items-center gap-3 rounded-lg p-2">{body}</div>
+      )}
     </li>
   );
 }

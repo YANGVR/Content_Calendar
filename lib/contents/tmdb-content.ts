@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/supabase/user";
 import { getTmdbDetails } from "@/lib/tmdb/api";
 import {
   classifyTmdb,
@@ -74,6 +75,7 @@ export async function findMyTmdbContent(
   const query = supabase
     .from("contents")
     .select(CONTENT_COLUMNS)
+    .eq("owner_id", await currentUserId())
     .eq("tmdb_type", type)
     .eq("tmdb_id", tmdbId);
   const { data, error } = await (season === null

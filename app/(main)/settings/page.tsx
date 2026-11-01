@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { signOut } from "@/lib/auth/actions";
 import { NicknameForm } from "@/lib/profile/nickname-form";
+import { VisibilitySwitch } from "@/lib/profile/visibility-switch";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SettingsPage() {
@@ -23,7 +24,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, nickname")
+    .select("username, nickname, is_public")
     .eq("id", userId)
     .single();
 
@@ -40,6 +41,7 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <NicknameForm nickname={profile?.nickname ?? ""} />
+          <VisibilitySwitch isPublic={profile?.is_public ?? true} />
           <form action={signOut}>
             <Button type="submit" variant="outline">
               로그아웃
