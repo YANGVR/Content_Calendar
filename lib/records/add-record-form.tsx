@@ -4,17 +4,11 @@ import { useActionState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 
 import type { RecordFormState } from "./actions";
 import { DateField } from "./date-field";
+import { EpisodePicker } from "./episode-picker";
 
 export function AddRecordForm({
   action,
@@ -55,36 +49,12 @@ export function AddRecordForm({
         )}
         {/* Remount after each save so the picked episodes and date reset. */}
         {episodes !== null && (
-          <FieldSet key={`episodes-${season}-${state.savedAt ?? 0}`}>
-            <FieldLegend variant="label">본 회차</FieldLegend>
-            <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
-              {episodes.map(
-                (episode) => (
-                  <Field
-                    key={episode}
-                    orientation="horizontal"
-                    className="w-auto"
-                  >
-                    <Checkbox
-                      id={`episode-${episode}`}
-                      name="episodes"
-                      value={String(episode)}
-                    />
-                    <FieldLabel
-                      htmlFor={`episode-${episode}`}
-                      className={
-                        watched.has(episode)
-                          ? "font-normal"
-                          : "font-normal text-muted-foreground"
-                      }
-                    >
-                      {episode - episodeOffset}화
-                    </FieldLabel>
-                  </Field>
-                ),
-              )}
-            </div>
-          </FieldSet>
+          <EpisodePicker
+            key={`episodes-${season}-${state.savedAt ?? 0}`}
+            episodes={episodes}
+            watched={watched}
+            offset={episodeOffset}
+          />
         )}
         <DateField key={`date-${state.savedAt ?? 0}`} defaultDate={today} />
       </FieldGroup>

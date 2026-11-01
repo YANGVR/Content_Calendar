@@ -5,8 +5,11 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
+import type { TmdbType } from "@/lib/tmdb/classify";
+
 import { isContentKind } from "./kinds";
 import { CONTENT_IMAGE_BUCKET } from "./queries";
+import { ensureTmdbContent } from "./tmdb-content";
 
 export type ContentFormState = { error?: string };
 
@@ -115,10 +118,25 @@ export async function deleteContent(
 
 export type RatingFormState = { error?: string; savedAt?: number };
 
+// What a rating or review belongs to: a saved content, or a TMDB title (or
+// season) that is saved at the moment the first rating or review is given.
+export type RatingTarget =
+  | { contentId: string }
+  | { tmdb: { type: TmdbType; id: number; season: number | null } };
+
 async function updateRatingFields(
-  contentId: string,
+  target: RatingTarget,
   fields: { rating?: number | null; review?: string | null },
 ): Promise<RatingFormState> {
+  let contentId: string;
+  if ("contentId" in target) {
+    contentId = target.contentId;
+  } else {
+    const { type, id, season } = target.tmdb;
+    const saved = await ensureTmdbContent(type, id, season);
+    if (!saved) return { error: "콘텐츠를 저장하지 못했습니다." };
+    contentId = saved.id;
+  }
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("contents")
@@ -135,29 +153,29 @@ async function updateRatingFields(
 
 // Sets the 1-5 star rating, or clears it when "clear" is submitted.
 export async function saveRating(
-  contentId: string,
+  target: RatingTarget,
   _prev: RatingFormState,
   formData: FormData,
 ): Promise<RatingFormState> {
   const value = String(formData.get("rating") ?? "");
-  if (value === "clear") return updateRatingFields(contentId, { rating: null });
+  if (value === "clear") return updateRatingFields(target, { rating: null });
   const rating = Number(value);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return { error: "별점은 1–5 사이로 골라 주세요." };
   }
-  return updateRatingFields(contentId, { rating });
+  return updateRatingFields(target, { rating });
 }
 
 // Saves the one-line review; an empty review or "clear" removes it.
 export async function saveReview(
-  contentId: string,
+  target: RatingTarget,
   _prev: RatingFormState,
   formData: FormData,
 ): Promise<RatingFormState> {
   if (formData.get("intent") === "clear") {
-    return updateRatingFields(contentId, { review: null });
+    return updateRatingFields(target, { review: null });
   }
   const review = String(formData.get("review") ?? "").trim();
   if (review.length > 100) return { error: "한줄평은 100자 이하로 써 주세요." };
-  return updateRatingFields(contentId, { review: review || null });
+  return updateRatingFields(target, { review: review || null });
 }

@@ -85,17 +85,21 @@ export function ContentDetail({
 
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-medium">내 평가</h2>
-        {content.id ? (
-          <RatingForm
-            contentId={content.id}
-            rating={content.rating}
-            review={content.review}
-          />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            한 번 기록하면 별점과 한줄평을 남길 수 있어요.
-          </p>
-        )}
+        <RatingForm
+          target={
+            content.id
+              ? { contentId: content.id }
+              : {
+                  tmdb: {
+                    type: content.tmdb_type as "movie" | "tv",
+                    id: content.tmdb_id as number,
+                    season: content.tmdb_season,
+                  },
+                }
+          }
+          rating={content.rating}
+          review={content.review}
+        />
       </section>
 
       <section className="flex flex-col gap-4">

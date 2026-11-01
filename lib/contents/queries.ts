@@ -40,7 +40,7 @@ export type ContentWithRecords = Content & {
   }[];
 };
 
-// Hand-added contents plus TMDB contents the owner has recorded, with the
+// Hand-added contents plus TMDB contents the owner has recorded or rated, with the
 // episodes recorded for each (for progress). Defaults to the signed-in user;
 // a friend's id works when row-level security lets the caller read it.
 export async function listMyContents(ownerId?: string) {
@@ -53,7 +53,11 @@ export async function listMyContents(ownerId?: string) {
     .returns<ContentWithRecords[]>();
   if (error) throw error;
   return data.filter(
-    (c) => c.source === "custom" || c.watch_records.length > 0,
+    (c) =>
+      c.source === "custom" ||
+      c.watch_records.length > 0 ||
+      c.rating !== null ||
+      c.review !== null,
   );
 }
 

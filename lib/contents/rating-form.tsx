@@ -8,26 +8,31 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-import { saveRating, saveReview, type RatingFormState } from "./actions";
+import {
+  saveRating,
+  saveReview,
+  type RatingFormState,
+  type RatingTarget,
+} from "./actions";
 
 // Content-level rating (1-5 stars) and one-line review.
 export function RatingForm({
-  contentId,
+  target,
   rating,
   review,
 }: {
-  contentId: string;
+  target: RatingTarget;
   rating: number | null;
   review: string | null;
 }) {
   const [ratingState, ratingAction, ratingPending] = useActionState<
     RatingFormState,
     FormData
-  >(saveRating.bind(null, contentId), {});
+  >(saveRating.bind(null, target), {});
   const [reviewState, reviewAction, reviewPending] = useActionState<
     RatingFormState,
     FormData
-  >(saveReview.bind(null, contentId), {});
+  >(saveReview.bind(null, target), {});
 
   return (
     <div className="flex flex-col gap-6">
