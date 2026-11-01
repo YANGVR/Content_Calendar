@@ -32,6 +32,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `skills update`는 복사 방식을 보존하지 않으므로 사용하지 않는다. `update --copy`도 대안으로 사용하지 않는다.
 - 이 정책은 업데이트된 `update-project-skills` 본문이 symlink를 요구하더라도 우선한다. 스킬을 직접 수정할 때도 두 복사본을 함께 반영하고, 완료 시 symlink가 없는지와 두 복사본의 파일 내용이 같은지 확인한다.
 
+# 외부 서비스 문서
+
+- **TMDB API**(콘텐츠 검색·시즌/회차·이미지 출처): TMDB를 호출하거나 그 응답을 다루는 작업을 시작할 때 공식 문서 색인 `https://developer.themoviedb.org/llms.txt`를 가져와 필요한 항목을 읽는다. 저장소에 사본을 두지 않으며, 기억한 API 형태보다 가져온 문서를 우선한다.
+- **Supabase**(인증·데이터베이스): 작업 전 공식 스킬 `supabase`를 읽고, 스키마·RLS를 바꿀 때는 `supabase-postgres-best-practices`도 읽는다. 스킬이 다루지 않는 내용은 `https://supabase.com/llms.txt`에서 가져오고, 설치된 `@supabase/*` 버전과 맞춰 본다.
+
 # 브라우저 검증
 
 - 실행 중인 앱의 런타임 검증은 `next-dev-loop` 스킬(`/_next/mcp` + `agent-browser`)로 한다. 브라우저 확인을 요구하는 다른 스킬(`implement`, `human-review`, `build-prototype` 등)도 같은 도구를 쓴다.
