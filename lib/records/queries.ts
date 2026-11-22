@@ -27,7 +27,9 @@ export async function listMyDatedRecords(ownerId?: string) {
     .eq("user_id", ownerId ?? (await currentUserId()))
     .not("watched_on", "is", null)
     .order("watched_on", { ascending: false })
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
+    .order("season", { ascending: false, nullsFirst: false })
+    .order("episode", { ascending: false, nullsFirst: false })
     .returns<WatchRecord[]>();
   if (error) throw error;
   return data;
@@ -41,8 +43,8 @@ export async function listRecordsForContent(contentId: string) {
     .eq("user_id", await currentUserId())
     .eq("content_id", contentId)
     .order("watched_on", { ascending: false, nullsFirst: true })
-    .order("season", { ascending: true, nullsFirst: true })
-    .order("episode", { ascending: true })
+    .order("season", { ascending: false, nullsFirst: true })
+    .order("episode", { ascending: false })
     .returns<WatchRecord[]>();
   if (error) throw error;
   return data;
