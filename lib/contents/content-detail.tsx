@@ -9,7 +9,7 @@ import { AddRecordForm } from "@/lib/records/add-record-form";
 import { formatWatched, todayInKorea } from "@/lib/records/dates";
 import { partNumberOf, type EpisodeOptions } from "@/lib/records/episode-options";
 import { episodeLabel } from "@/lib/records/episodes";
-import { computeProgress, progressLabel } from "@/lib/records/progress";
+import { computeProgress, computeSeasonProgress, progressLabel } from "@/lib/records/progress";
 import type { WatchRecord } from "@/lib/records/queries";
 import { SeasonPicker } from "@/lib/records/season-picker";
 
@@ -51,7 +51,11 @@ export function ContentDetail({
         .map((r) => r.episode as number),
     ),
   ];
-  const progress = computeProgress(content, records, options.part ?? undefined);
+  // Progress of what is being recorded: the shown 기수 or season, else everything.
+  const progress =
+    options.part === null && options.seasons.length > 1 && options.season !== null && options.episodes
+      ? computeSeasonProgress(records, options.season, options.episodes.length)
+      : computeProgress(content, records, options.part ?? undefined);
   const unrecordable =
     content.kind !== "movie" &&
     (content.episode_count === null ||

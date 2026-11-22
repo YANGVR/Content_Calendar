@@ -28,6 +28,37 @@ export function computeProgress(
   return { kind: "series", watched, total, percent: Math.round((watched / total) * 100) };
 }
 
+// Distinct episodes of one season watched out of that season's own episode count.
+export function computeSeasonProgress(
+  records: { season: number | null; episode: number | null }[],
+  season: number,
+  total: number,
+): Progress {
+  const distinct = new Set(
+    records.filter((r) => r.season === season && r.episode !== null).map((r) => r.episode),
+  );
+  const watched = Math.min(distinct.size, total);
+  return {
+    kind: "series",
+    watched,
+    total,
+    percent: total > 0 ? Math.round((watched / total) * 100) : 0,
+  };
+}
+
+// Progress of each season that has at least one record, e.g. "시즌 2 5/13화 · 38%".
+export function seasonProgressLabels(
+  records: { season: number | null; episode: number | null }[],
+  seasons: { season_number: number; episode_count: number }[],
+) {
+  return seasons.flatMap((season) => {
+    const progress = computeSeasonProgress(records, season.season_number, season.episode_count);
+    return progress.kind === "series" && progress.watched > 0
+      ? [`시즌 ${season.season_number} ${progressLabel(progress)}`]
+      : [];
+  });
+}
+
 // Progress of each 기수 that has at least one record, e.g. "2기 8/25화 · 32%".
 export function partProgressLabels(
   content: { kind: string; episode_count: number | null },

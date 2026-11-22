@@ -16,9 +16,9 @@ import { CONTENT_KIND_LABELS } from "@/lib/contents/kinds";
 import { listMyContents, signImageUrls } from "@/lib/contents/queries";
 import { Thumbnail } from "@/lib/contents/thumbnail";
 import { getFriend } from "@/lib/friends/queries";
+import { contentProgressLabels } from "@/lib/records/content-progress";
 import { todayInKorea } from "@/lib/records/dates";
 import { groupByPeriod } from "@/lib/records/period";
-import { computeProgress, progressLabel } from "@/lib/records/progress";
 import { listMyDatedRecords } from "@/lib/records/queries";
 import { RecordItem } from "@/lib/records/record-item";
 import { RecordsCalendar } from "@/lib/records/records-calendar";
@@ -67,6 +67,13 @@ export default async function FriendPage({ params }: PageProps<"/friends/[userna
     ...records.map((r) => r.content.image_path),
     ...contents.map((c) => c.image_path),
   ]);
+  const progressById = new Map(
+    await Promise.all(
+      contents.map(
+        async (c) => [c.id, await contentProgressLabels(c, c.watch_records)] as const,
+      ),
+    ),
+  );
   const dayRecords = records.filter((r) => r.watched_precision === "day");
   const groups = groupByPeriod(dayRecords, (r) => r.watched_on, "day");
 
@@ -118,7 +125,7 @@ export default async function FriendPage({ params }: PageProps<"/friends/[userna
           ) : (
             <ul className="flex flex-col gap-1">
               {contents.map((content) => {
-                const progress = progressLabel(computeProgress(content, content.watch_records));
+                const progresses = progressById.get(content.id) ?? [];
                 return (
                   <li key={content.id} className="flex items-center gap-3 rounded-lg p-2">
                     <Thumbnail src={contentImageSrc(content, imageUrls)} alt={content.title} />
@@ -126,7 +133,9 @@ export default async function FriendPage({ params }: PageProps<"/friends/[userna
                       <span className="truncate font-medium">{content.title}</span>
                       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                         <Badge variant="secondary">{CONTENT_KIND_LABELS[content.kind]}</Badge>
-                        {progress && <span>{progress}</span>}
+                        {progresses.map((label) => (
+                          <span key={label}>{label}</span>
+                        ))}
                         {content.rating !== null && (
                           <span className="flex items-center gap-1">
                             <StarIcon className="size-3.5 fill-rating text-rating" />

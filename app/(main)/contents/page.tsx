@@ -22,19 +22,18 @@ import {
   type ContentWithRecords,
 } from "@/lib/contents/queries";
 import { Thumbnail } from "@/lib/contents/thumbnail";
-import { getContentParts } from "@/lib/records/episode-options";
-import { computeProgress, partProgressLabels, progressLabel } from "@/lib/records/progress";
-import type { SeasonPart } from "@/lib/tmdb/season-parts";
+import { contentProgressLabels } from "@/lib/records/content-progress";
 
 export default async function ContentsPage({ searchParams }: PageProps<"/contents">) {
   const kind = parseKind((await searchParams).kind);
   const all = await listMyContents();
   const contents = kind ? all.filter((c) => c.kind === kind) : all;
   const imageUrls = await signImageUrls(contents.map((c) => c.image_path));
-  // Single-season anime split into 기수 show progress per 기수.
-  const partsById = new Map(
+  const progressById = new Map(
     await Promise.all(
-      contents.map(async (c) => [c.id, await getContentParts(c)] as const),
+      contents.map(
+        async (c) => [c.id, await contentProgressLabels(c, c.watch_records)] as const,
+      ),
     ),
   );
 
@@ -81,7 +80,7 @@ export default async function ContentsPage({ searchParams }: PageProps<"/content
               key={content.id}
               content={content}
               imageSrc={contentImageSrc(content, imageUrls)}
-              parts={partsById.get(content.id) ?? null}
+              progresses={progressById.get(content.id) ?? []}
             />
           ))}
         </ul>
@@ -93,17 +92,12 @@ export default async function ContentsPage({ searchParams }: PageProps<"/content
 function ContentRow({
   content,
   imageSrc,
-  parts,
+  progresses,
 }: {
   content: ContentWithRecords;
   imageSrc?: string;
-  parts: SeasonPart[] | null;
+  progresses: string[];
 }) {
-  const progresses = parts
-    ? partProgressLabels(content, content.watch_records, parts)
-    : [progressLabel(computeProgress(content, content.watch_records))].filter(
-        (label) => label !== null,
-      );
   return (
     <li className="flex items-center gap-2">
       <Link
