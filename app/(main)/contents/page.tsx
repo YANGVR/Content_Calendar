@@ -22,13 +22,21 @@ import {
   type ContentWithRecords,
 } from "@/lib/contents/queries";
 import { Thumbnail } from "@/lib/contents/thumbnail";
-import { computeProgress, progressLabel } from "@/lib/records/progress";
+import { getContentParts } from "@/lib/records/episode-options";
+import { computeProgress, partProgressLabels, progressLabel } from "@/lib/records/progress";
+import type { SeasonPart } from "@/lib/tmdb/season-parts";
 
 export default async function ContentsPage({ searchParams }: PageProps<"/contents">) {
   const kind = parseKind((await searchParams).kind);
   const all = await listMyContents();
   const contents = kind ? all.filter((c) => c.kind === kind) : all;
   const imageUrls = await signImageUrls(contents.map((c) => c.image_path));
+  // Single-season anime split into 기수 show progress per 기수.
+  const partsById = new Map(
+    await Promise.all(
+      contents.map(async (c) => [c.id, await getContentParts(c)] as const),
+    ),
+  );
 
   return (
     <>
@@ -73,6 +81,7 @@ export default async function ContentsPage({ searchParams }: PageProps<"/content
               key={content.id}
               content={content}
               imageSrc={contentImageSrc(content, imageUrls)}
+              parts={partsById.get(content.id) ?? null}
             />
           ))}
         </ul>
@@ -84,11 +93,17 @@ export default async function ContentsPage({ searchParams }: PageProps<"/content
 function ContentRow({
   content,
   imageSrc,
+  parts,
 }: {
   content: ContentWithRecords;
   imageSrc?: string;
+  parts: SeasonPart[] | null;
 }) {
-  const progress = progressLabel(computeProgress(content, content.watch_records));
+  const progresses = parts
+    ? partProgressLabels(content, content.watch_records, parts)
+    : [progressLabel(computeProgress(content, content.watch_records))].filter(
+        (label) => label !== null,
+      );
   return (
     <li className="flex items-center gap-2">
       <Link
@@ -100,7 +115,9 @@ function ContentRow({
           <span className="truncate font-medium">{content.title}</span>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <Badge variant="secondary">{CONTENT_KIND_LABELS[content.kind]}</Badge>
-            {progress && <span>{progress}</span>}
+            {progresses.map((label) => (
+              <span key={label}>{label}</span>
+            ))}
             {content.rating !== null && (
               <span className="flex items-center gap-1">
                 <StarIcon className="size-3.5 fill-rating text-rating" />

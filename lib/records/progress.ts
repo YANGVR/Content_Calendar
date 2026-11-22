@@ -7,18 +7,39 @@ export type Progress =
 export function computeProgress(
   content: { kind: string; episode_count: number | null },
   records: { season: number | null; episode: number | null }[],
+  // When given, only this range of episode numbers (a 기수) is counted, out of
+  // the range's own length.
+  range?: { start: number; end: number },
 ): Progress {
   if (content.kind === "movie" || content.episode_count === null) {
     return { kind: "movie", watched: records.length > 0 };
   }
   const distinct = new Set(
     records
-      .filter((r) => r.episode !== null)
+      .filter(
+        (r) =>
+          r.episode !== null &&
+          (!range || (r.episode >= range.start && r.episode <= range.end)),
+      )
       .map((r) => `${r.season ?? 0}:${r.episode}`),
   );
-  const total = content.episode_count;
+  const total = range ? range.end - range.start + 1 : content.episode_count;
   const watched = Math.min(distinct.size, total);
   return { kind: "series", watched, total, percent: Math.round((watched / total) * 100) };
+}
+
+// Progress of each 기수 that has at least one record, e.g. "2기 8/25화 · 32%".
+export function partProgressLabels(
+  content: { kind: string; episode_count: number | null },
+  records: { season: number | null; episode: number | null }[],
+  parts: { number: number; start: number; end: number }[],
+) {
+  return parts.flatMap((part) => {
+    const progress = computeProgress(content, records, part);
+    return progress.kind === "series" && progress.watched > 0
+      ? [`${part.number}기 ${progressLabel(progress)}`]
+      : [];
+  });
 }
 
 // Movies have no progress to show; only series get a label.

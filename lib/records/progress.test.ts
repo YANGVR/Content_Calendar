@@ -20,6 +20,17 @@ describe("computeProgress", () => {
     expect(progress).toMatchObject({ watched: 2, total: 22 });
   });
 
+  it("기수 범위를 주면 그 기의 회차만 그 기의 길이로 센다", () => {
+    const records = [1, 2, 3, 26, 27].map((episode) => ({ season: 1, episode }));
+    const content = { kind: "anime", episode_count: 75 };
+    expect(progressLabel(computeProgress(content, records, { start: 1, end: 25 }))).toBe(
+      "3/25화 · 12%",
+    );
+    expect(progressLabel(computeProgress(content, records, { start: 26, end: 50 }))).toBe(
+      "2/25화 · 8%",
+    );
+  });
+
   it("영화는 진행률을 표시하지 않는다", () => {
     expect(
       progressLabel(computeProgress({ kind: "movie", episode_count: null }, [{ season: null, episode: null }])),

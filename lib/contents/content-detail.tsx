@@ -51,7 +51,7 @@ export function ContentDetail({
         .map((r) => r.episode as number),
     ),
   ];
-  const progress = computeProgress(content, records);
+  const progress = computeProgress(content, records, options.part ?? undefined);
   const unrecordable =
     content.kind !== "movie" &&
     (content.episode_count === null ||
