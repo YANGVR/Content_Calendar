@@ -8,11 +8,11 @@ export default function MainLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b">
-        <nav className="mx-auto flex w-full max-w-4xl items-center gap-6 px-4 py-3 sm:px-6">
-          <Link href="/" className="font-semibold">
+        <nav className="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+          <Link href="/" className="font-semibold whitespace-nowrap">
             Content Calendar
           </Link>
-          <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex gap-4 text-sm whitespace-nowrap text-muted-foreground">
             <Link href="/records" className="hover:text-foreground">
               기록
             </Link>
