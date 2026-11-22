@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,12 @@ export function EpisodePicker({
           {allSelected ? "전체 해제" : "전체 선택"}
         </Button>
       </div>
+      {watched.size > 0 && (
+        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+          <CheckIcon aria-hidden className="size-3.5 text-emerald-600" />
+          표시된 회차는 이미 기록했어요.
+        </p>
+      )}
       <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
         {episodes.map((episode) => (
           <Field key={episode} orientation="horizontal" className="w-auto">
@@ -58,10 +65,18 @@ export function EpisodePicker({
             <FieldLabel
               htmlFor={`episode-${episode}`}
               className={
-                watched.has(episode) ? "font-normal" : "font-normal text-muted-foreground"
+                watched.has(episode)
+                  ? "gap-1 font-semibold"
+                  : "font-normal text-muted-foreground"
               }
             >
               {episode - offset}화
+              {watched.has(episode) && (
+                <>
+                  <CheckIcon aria-hidden className="size-3.5 text-emerald-600" />
+                  <span className="sr-only">(이미 기록함)</span>
+                </>
+              )}
             </FieldLabel>
           </Field>
         ))}
